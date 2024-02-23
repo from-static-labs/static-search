@@ -1,7 +1,7 @@
 import { useEffect, useState, FormEvent } from "react";
 import NextLink from "next/link";
 
-import { search, authorization } from "@globus/sdk";
+import { search } from "@globus/sdk";
 import {
   Input,
   Container,
@@ -20,21 +20,42 @@ import {
   StatNumber,
 } from "@chakra-ui/react";
 
-import STATIC from "../../static.json";
 import { useRouter } from "next/router";
 import { useSearchParams } from "next/navigation";
 
-type SearchResponse = {
+import { STATIC, getStaticField } from "static-search/utils/static";
+
+export type GMetaResult = {
+  "@datatype": "GMetaResult";
+  "@version": string;
+  subject: string;
+  entries: SearchEntry[];
+};
+
+export type SearchEntry = {
+  entry_id: string | null;
+  matched_principal_sets: string[];
+  content: {
+    [key: string]: unknown;
+  };
+};
+
+type GSearchResult = {
+  "@datatype": "GSearchResult";
+  "@version": string;
+  offset: number;
   total: number;
-  gmeta: {
-    subject: string;
-    entries: {
-      content: {
-        title: string;
-        summary: string;
-      };
-    }[];
-  }[];
+  has_next_page: boolean;
+  gmeta: GMetaResult[];
+};
+
+export type GError = {
+  "@datatype": "GError";
+  message: string;
+  code: string;
+  request_id: string;
+  status: number;
+  error: Record<string, unknown> | Array<GError>;
 };
 
 export default function Index() {
@@ -42,7 +63,7 @@ export default function Index() {
   const searchParams = useSearchParams();
   const query = searchParams.get("q");
 
-  const [results, setResults] = useState<null | SearchResponse>(null);
+  const [results, setResults] = useState<null | GSearchResult>(null);
 
   const updateQueryParam = (key: string, value: string) => {
     const currentParams = new URLSearchParams(searchParams.toString());
@@ -109,22 +130,21 @@ export default function Index() {
             <VStack py={2} spacing={5} align="stretch">
               {results &&
                 results.gmeta.map((gmeta, i) => {
-                  const entry = gmeta.entries[0];
                   return (
                     <LinkBox
                       as={NextLink}
-                      href={`/results/${gmeta.subject}`}
+                      href={`/results/${encodeURIComponent(gmeta.subject)}`}
                       key={i}
                     >
                       <Card size="sm" w="full">
                         <CardHeader>
                           <Heading size="md" color="brand">
-                            {entry.content.title}
+                            {getStaticField(gmeta, "result.title")}
                           </Heading>
                         </CardHeader>
                         <CardBody>
                           <Text noOfLines={[3, 5, 10]}>
-                            {entry.content.summary}
+                            {getStaticField(gmeta, "result.summary")}
                           </Text>
                         </CardBody>
                       </Card>
