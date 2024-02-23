@@ -16,7 +16,7 @@
     "@emotion/styled": "^11.11.0",
     "@fontsource/ibm-plex-mono": "^5.0.8",
     "@fontsource/ibm-plex-sans": "^5.0.18",
-    "@globus/sdk": "^2.1.0",
+    "@globus/sdk": "^2.4.1",
     "framer-motion": "^10.18.0",
     "lodash": "^4.17.21",
     "next": "14.0.4",
