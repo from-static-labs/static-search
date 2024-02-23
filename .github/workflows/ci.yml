@@ -1,4 +1,4 @@
-name: Next.js CI
+name: ci
 on:
   pull_request:
     branches:
@@ -7,7 +7,7 @@ on:
 
 jobs:
   test:
-    name: "Next.js : lint"
+    name: lint
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
